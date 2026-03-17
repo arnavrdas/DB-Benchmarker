@@ -33,7 +33,7 @@ Ensure these ports are free:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/arnavrdas/DB-Benchmarker.git
 cd db-performance-dashboard
 
 # Make the run script executable
