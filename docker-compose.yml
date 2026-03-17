@@ -1,0 +1,87 @@
+services:
+  # PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: perf_postgres
+    environment:
+      POSTGRES_DB: perfdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d perfdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB
+  mongodb:
+    image: mongo:6
+    container_name: perf_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: perfdb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: perf_redis
+    command: redis-server --requirepass admin123
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Add pgAdmin for PostgreSQL GUI
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: perf_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  # Optional: MongoDB Express GUI
+  mongo-express:
+    image: mongo-express
+    container_name: perf_mongo_express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+
+  # Optional: Redis Commander GUI
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: perf_redis_commander
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:admin123
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis

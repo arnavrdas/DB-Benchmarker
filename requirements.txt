@@ -1,0 +1,17 @@
+# Core dependencies
+pandas==2.0.3
+numpy==1.24.3
+Faker==19.3.0
+
+# Database drivers
+psycopg2-binary==2.9.6
+pymongo==4.4.0
+redis==4.6.0
+SQLAlchemy==2.0.19
+
+# Dashboard
+streamlit==1.25.0
+plotly==5.15.0
+
+# System metrics
+psutil==5.9.5
